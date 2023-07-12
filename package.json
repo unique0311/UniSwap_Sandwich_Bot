@@ -1,0 +1,136 @@
+{
+  "name": "mev-uniswap-bot",
+  "author": "Leo",
+  "description": "Mev Uniswap Sandwich Bot",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@emotion/react": "^11.10.6",
+    "@emotion/styled": "^11.10.6",
+    "@fontsource/roboto": "^4.5.8",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.12.2",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@uniswap/sdk": "^3.0.3",
+    "axios": "^0.24.0",
+    "bignumber.js": "^9.1.1",
+    "body-parser": "^1.19.0",
+    "chai": "^4.3.7",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^3.1.0",
+    "clsx": "^1.2.1",
+    "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
+    "crypto-browserify": "^3.12.0",
+    "cryptocurrencies": "^7.0.0",
+    "dotenv": "^10.0.0",
+    "electron-is-dev": "^2.0.0",
+    "ethers": "^5.7.2",
+    "express": "^4.17.1",
+    "express-async-handler": "^1.2.0",
+    "fetch": "^1.1.0",
+    "helmet": "^3.21.3",
+    "moment": "^2.29.3",
+    "morgan": "^1.9.1",
+    "node-fetch": "^3.3.1",
+    "notistack": "^3.0.1",
+    "okx-api": "^1.0.5",
+    "path": "^0.12.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^4.8.0",
+    "react-router-dom": "^6.10.0",
+    "react-scripts": "5.0.1",
+    "react-select": "^5.7.2",
+    "shell": "^0.5.1",
+    "simplebar-react": "^3.2.4",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
+    "web-vitals": "^2.1.4",
+    "web3": "^1.9.0",
+    "websocket": "^1.0.34"
+  },
+  "browser": {
+    "crypto": false
+  },
+  "main": "public/electron.js",
+  "homepage": "./",
+  "scripts": {
+    "react-start": "react-scripts start",
+    "react-build": "react-scripts build",
+    "react-test": "react-scripts test",
+    "react-eject": "react-scripts eject",
+    "electron-build": "electron-builder",
+    "electron-build:win": "electron-builder build --windows --x64",
+    "release": "yarn react-build && electron-builder --publish=always",
+    "build": "yarn react-build && yarn electron-build",
+    "build:win": "yarn react-build && yarn electron-build:win",
+    "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://127.0.0.1:3000 && electron .\"",
+    "electron": "wait-on http://127.0.0.1:3000 && electron ."
+  },
+  "build": {
+    "appId": "mev-uniswap-bot",
+    "productName": "Mev-Uniswap-Bot",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*",
+      "api/**/*"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "portable": {
+      "artifactName": "${name}_${version}_Windows_portable.exe"
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "rpm",
+        "AppImage"
+      ],
+      "category": "Development"
+    },
+    "asar": true,
+    "asarUnpack": "**\\*.{node,dll}"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.1",
+    "cross-env": "^7.0.3",
+    "dotenv-webpack": "^8.0.1",
+    "electron": "^24.1.1",
+    "electron-builder": "^23.0.3",
+    "electronmon": "^2.0.2",
+    "nodemon": "^2.0.22",
+    "rimraf": "^5.0.0",
+    "wait-on": "^7.0.1"
+  },
+  "win": {
+    "icon": "build/favicon.ico"
+  }
+}
