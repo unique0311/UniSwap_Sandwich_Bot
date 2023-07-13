@@ -735,15 +735,14 @@ module.exports = io => {
                     console.log("Count -----",i,"  :~~~~~~~~~~~~~~ Init Mempool ---- Before Date ~~~~~~~~~~~~~~~~~", startTime, "TxHash -----",  txHash);
                     const tx = await ethProvider.getTransaction(txHash);
 
-                    console.log("getTransaction(txHash).to ---- ", tx.to);
-
                     if (!tx || !tx.from || !tx.to) {
                         console.log("~~~~~~~~~~~ Init Mempool --- !TX ~~~~~~~~")
                         return;
                     }
 
-                    console.log("uniswap --- :", uniswap.toLowerCase());
-                    console.log("plan public --- :", plan.public.toLowerCase());
+                    // console.log("getTransaction(txHash).to ---- ", tx.to);
+                    // console.log("uniswap --- :", uniswap.toLowerCase());
+                    // // console.log("plan public --- :", plan.public.toLowerCase());
 
                     // check if transaction in uniswap
                     if (tx.to && tx.to.toLowerCase() === uniswap.toLowerCase() && tx.from.toLowerCase() !== plan.public.toLowerCase() && tx.from !== "0x0000000000000000000000000000000000000000") {
