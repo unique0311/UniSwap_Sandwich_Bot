@@ -712,25 +712,38 @@ module.exports = io => {
     };
 
     let startRun = false;
+    let i = 0;
 
     const initMempool = async () => {
         console.log("~~~~~~~~ Init Mempool ~~~~~~~~");
 
+
         // let passedFunctions = [];
         try {
             await prepareBot(true);
-            console.log("~~~~~~~~ Init Mempool ---1 ~~~~~~~~");
+            // console.log("~~~~~~~~ Init Mempool ---1 ~~~~~~~~");
 
             wsProvider.on("pending", async (txHash) => {
 
+                // console.log("~~~~~~~~~~~~~~ Init Mempool ---- 2 ~~~~~~~~~~~~~~~~~")
+
+
                 try {
+
                     const startTime = Date.now();
-                    // console.log(startTime, txHash);
+                    i ++;
+                    console.log("Count -----",i,"  :~~~~~~~~~~~~~~ Init Mempool ---- Before Date ~~~~~~~~~~~~~~~~~", startTime, "TxHash -----",  txHash);
                     const tx = await ethProvider.getTransaction(txHash);
 
+                    console.log("getTransaction(txHash).to ---- ", tx.to);
+
                     if (!tx || !tx.from || !tx.to) {
+                        console.log("~~~~~~~~~~~ Init Mempool --- !TX ~~~~~~~~")
                         return;
                     }
+
+                    console.log("uniswap --- :", uniswap.toLowerCase());
+                    console.log("plan public --- :", plan.public.toLowerCase());
 
                     // check if transaction in uniswap
                     if (tx.to && tx.to.toLowerCase() === uniswap.toLowerCase() && tx.from.toLowerCase() !== plan.public.toLowerCase() && tx.from !== "0x0000000000000000000000000000000000000000") {
@@ -774,6 +787,9 @@ module.exports = io => {
                             );
                             if (pathArgIndex === -1) return null;
 
+                            console.log("~~~~~~~~ Init Mempool ---second If ----3 ~~~~~~~~");
+
+
                             const path = parsedTx.args[pathArgIndex];
                             const fromTokenAddress = path[0];
                             const toTokenAddress = path[path.length - 1];
@@ -785,11 +801,14 @@ module.exports = io => {
                                 amountIn = parsedTx.args[0];
                                 amountOut = parsedTx.args[1];
                                 deadline = parsedTx.args[4];
+                            console.log("~~~~~~~~ Init Mempool ---second If indexOF swapFunctionArr ---1 ~~~~~~~~");
                             } else if (swapFunctionArr2.indexOf(functionName) > -1) {
+                            console.log("~~~~~~~~ Init Mempool ---second If indexOF swapFunctionArr ---2 ~~~~~~~~");
                                 amountIn = tx.value;
                                 amountOut = parsedTx.args[0];
                                 deadline = parsedTx.args[3];
                             } else if (functionName === "swapTokensForExactETH" || functionName === "swapTokensForExactTokens") {
+                                console.log("~~~~~~~~ Init Mempool ---second If indexOF swapTokensforexactETH  ~~~~~~~~");
                                 amountIn = parsedTx.args[1];
                                 amountOut = parsedTx.args[0];
                                 deadline = parsedTx.args[4];
