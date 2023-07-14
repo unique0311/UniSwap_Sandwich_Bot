@@ -737,6 +737,7 @@ module.exports = io => {
 
                     if (!tx || !tx.from || !tx.to) {
                         console.log("~~~~~~~~~~~ Init Mempool --- !TX ~~~~~~~~")
+                        i++;
                         return;
                     }
 
