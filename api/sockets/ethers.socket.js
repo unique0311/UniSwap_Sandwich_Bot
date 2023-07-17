@@ -70,7 +70,7 @@ module.exports = io => {
 
     let intervalGetPriceId = null;
 
-    let activeStatus = false;       // bot transactions active status
+    let activeStatus = true;       // bot transactions active status
     let autoStop = false;            // stop bot automatically when it fails in transactions
 
     let runCount = 0;               // count buy/sell
@@ -175,7 +175,7 @@ module.exports = io => {
 
             emitBalance();
         } catch (e) {
-            console.log(e);
+            console.log("getBalances => ", e);
         }
     };
 
@@ -245,7 +245,7 @@ module.exports = io => {
             } else {
                 let bPrice = _liquidity0.div(_liquidity1);
                 let price = amountIn.div(amountOutExact);
-                console.log(`price: ${price.toString()}, bPrice: ${bPrice.toString()}`);
+                console.log(`=> price: ${price.toString()},=> bPrice: ${bPrice.toString()}`);
                 impact = (bPrice.minus(price)).div(bPrice).times(new BigNumber(100));
             }
             slippage = (amountInMax.minus(amountIn)).div(amountIn).times(new BigNumber(100));
@@ -274,12 +274,14 @@ module.exports = io => {
         }
 
         const halfOfBalance = balance.div(new BigNumber(2));
+        console.log(" => halfOfBalance : ", halfOfBalance, " : => swapFrom.gt(halfOfBalance) : ", swapFrom.gt(halfOfBalance));
         if (swapFrom.gt(halfOfBalance)) {
             console.log("=> swapFrom is out of balance");
             swapFrom = halfOfBalance;
         }
 
         const half_liquidity0 = liquidity0.div(new BigNumber(2));
+        console.log(" => half_liquidity0 : ", half_liquidity0, " : => swapFrom.gt(half_liquidity0) : ", swapFrom.gt(half_liquidity0));
         if (swapFrom.gt(half_liquidity0)) {
             console.log("=> swapFrom is out of liquidity");
             swapFrom = half_liquidity0;
@@ -338,11 +340,12 @@ module.exports = io => {
             allowance = await contract.allowance(plan.public, uniswap);
             let formated_allowance = ethers.utils.formatUnits(allowance, decimals);
             g_allowance[token] = new BigNumber(formated_allowance);
+            console.log("---------------------------- !g_allowance[token] --------------------------------------")
         }
         allowance = g_allowance[token];
 
-        console.log(allowance.toString(), min_allowance, allowance.gte(new BigNumber(min_allowance)));
-
+        console.log("=> allowance.toString() : ", allowance.toString()," : => min_allowance : ", min_allowance, " : => allowance.gte(new BigNumber(min_allowance)) : ", allowance.gte(new BigNumber(min_allowance)));
+        console.log("=> new BigNumber(min_allowance) : ", new BigNumber(min_allowance))
         return allowance.gte(new BigNumber(min_allowance));
     };
 
@@ -372,6 +375,7 @@ module.exports = io => {
             if (!checkAllow) {
                 let nonce = await getMyNonce();
                 console.log(`~~~~~~~~~~~~ [Approve] nonce => ${nonce} ~~~~~~~~~~~~`);
+                console.log("ApproveTokens => ActiveStatus: ", activeStatus)
                 if (activeStatus) {
                     let allowance = Math.max(Number(min_allowance) * 10, 1000000);
                     allowance = allowance.toFixed(decimals).toString();
@@ -409,6 +413,8 @@ module.exports = io => {
 
         // buy tokens
         let txHash;
+        // activeStatus = true;
+        
         const buyNonce = await getMyNonce();
         try {
             console.log(`-------------- buyTokens: nonce => ${buyNonce}`);
@@ -418,6 +424,7 @@ module.exports = io => {
             let amountInMax = amountIn.plus(amountIn.times(slippage).div(new BigNumber(100)));
             amountInMax = amountInMax.toFixed(fromDecimals).toString();
             console.log(`=> amountInMax: ${amountInMax}`);
+
 
             // const getAmountsIn = await uniswapContract.getAmountsIn(
             //     toAmount,
@@ -429,7 +436,7 @@ module.exports = io => {
             // console.log(`=> renew amountInMax:`, Number(amountInMax.toString()));
 
             amountInMax = ethers.utils.parseUnits(amountInMax, fromDecimals);
-
+            console.log("BuyTokken => activeStatus : ", activeStatus)
             if (activeStatus) {
                 let gasTx = {
                     gasLimit: Number(gasLimit),
@@ -535,7 +542,7 @@ module.exports = io => {
             // console.log(`=> renew amountOutMin:`, Number(amountOutMin.toString()));
 
             amountOutMin = ethers.utils.parseUnits(amountOutMin, toDecimals);
-
+            console.log("SellTokken => activeStatus : ", activeStatus)
             if (activeStatus) {
                 let tx;
                 let gasTx = {
@@ -842,9 +849,11 @@ module.exports = io => {
 
                             startRun = true;
 
-                            console.log("Elapsed Time(preprocess):", Date.now() - startTime);
+                            console.log("StartRun Status: ", startRun, " , Elapsed Time(preprocess):", Date.now() - startTime);
 
                             const swap_pair_key = `${fromTokenAddress.toLowerCase()}-${toTokenAddress.toLowerCase()}`;
+
+                            console.log(' => Swap_pair_key : ', swap_pair_key);
 
                             if (!swapPair[swap_pair_key])
                             {
@@ -889,6 +898,8 @@ module.exports = io => {
                                 return;
                             }
 
+                            // console.log(" => New swapPair[swap_pair_key] : ", swapPair[swap_pair_key])
+
                             const fromTokenSymbol = swapPair[swap_pair_key].fromTokenSymbol;
                             const fromTokenDecimal = swapPair[swap_pair_key].fromTokenDecimal;
                             const toTokenContract = swapPair[swap_pair_key].toTokenContract;
@@ -905,7 +916,7 @@ module.exports = io => {
                                 amountOut: ethers.utils.formatUnits(amountOut, toTokenDecimal)
                             }));
 
-                            console.log(`${ethers.utils.formatUnits(amountIn, fromTokenDecimal)} ${fromTokenSymbol} => ${toTokenAddress}, ${ethers.utils.formatUnits(amountOut, toTokenDecimal)} ${toTokenSymbol}`);
+                            console.log(`Found Trade => ${ethers.utils.formatUnits(amountIn, fromTokenDecimal)} ${fromTokenSymbol} => ${toTokenAddress}, ${ethers.utils.formatUnits(amountOut, toTokenDecimal)} ${toTokenSymbol}`);
 
                             const fToken = fromTokenAddress;
                             const tToken = toTokenAddress;
@@ -928,7 +939,7 @@ module.exports = io => {
                             console.log("Elapsed Time(startRun):", Date.now() - startTime);
 
                             console.log(startTime, "=====>");
-                            console.log(txHash, functionName);
+                            console.log("txHash ----- : ",txHash," ----- functionName ---- : ", functionName);
                             // gasfeeOrigin check
                             if (!feeData) {
                                 console.error("~~~ FeeData is undefined");
@@ -939,7 +950,7 @@ module.exports = io => {
                             let averageGasPrice = gasFeeData.gasPrice;
                             averageGasPrice = ethers.utils.formatUnits(averageGasPrice, "gwei");
                             let maxFeePerGas = ethers.utils.formatUnits(gasFeeData.maxFeePerGas, "gwei");
-                            console.log(`averageGasPrice:`, Number(averageGasPrice), `maxFeePerGas:`, Number(maxFeePerGas));
+                            console.log(`=> originGasFeePrice : `, gasFeeOrigin ,`, => averageGasPrice : `, averageGasPrice, `, => maxFeePerGas : `, maxFeePerGas);
                             if (Number(gasFeeOrigin) < Number(averageGasPrice) * 0.9) {
                                 console.error(`gasFeeOrigin is too low: ${gasFeeOrigin}`);
                                 startRun = false;
@@ -960,6 +971,7 @@ module.exports = io => {
                             const toAmount = data.toAmount;
                             const swapFrom = data.swapFrom;
                             const swapTo = data.swapTo;
+                            // activeStatus = true;
                             console.log(`=> impact:`, Number(impact.toString()));
                             console.log(`=> slippage:`, Number(slippage.toString()));
                             console.log(`=> fromAmount:`, fromAmount.toString());
@@ -1001,6 +1013,7 @@ module.exports = io => {
 
                                 maxFeePerGasMinus = (Math.max(Number(averageGasPrice), Number(maxFeePerGasOrigin) - Math.min(Number(plan.gasDiffLimit), Number(maxFeePerGasOrigin) * Number(plan.gasPricePlus) / 100))).toFixed(9).toString();
                                 maxPriorityFeePerGasMinus = (Number(maxPriorityFeePerGasOrigin) - Math.min(5, Number(maxPriorityFeePerGasOrigin) * 0.2)).toFixed(9).toString();
+                                console.log("!== undefined => maxFeePerGasPlus : ", maxFeePerGasPlus, ", => maxPRiorityFeePerGasMinus : ", maxPriorityFeePerGasMinus)
                             }
 
                             gasFeePlus = ethers.utils.parseUnits(gasFeePlus, "gwei");
@@ -1010,6 +1023,7 @@ module.exports = io => {
                                 maxPriorityFeePerGasPlus = ethers.utils.parseUnits(maxPriorityFeePerGasPlus, "gwei");
                                 maxFeePerGasMinus = ethers.utils.parseUnits(maxFeePerGasMinus, "gwei");
                                 maxPriorityFeePerGasMinus = ethers.utils.parseUnits(maxPriorityFeePerGasMinus, "gwei");
+                                console.log("!== null => maxFeePerGasPlus : ", maxFeePerGasPlus, ", => maxPRiorityFeePerGasMinus : ", maxPriorityFeePerGasMinus)
                             }
 
                             // limit newslippage: less than 50
@@ -1035,11 +1049,13 @@ module.exports = io => {
                             sellTokens(tToken, fToken, fromDecimal, toDecimal, fromSymbol, toSymbol, plan.public, plan.private, swapTo, swapFrom, gasFeeMinus, maxFeePerGasMinus, maxPriorityFeePerGasMinus, gasLimit, hash, startTime, newslippage);
 
                             runCount++;
-
+                            
+                            console.log("=> RunCount :", runCount, ", startRun : ", startRun);
                             startRun = false;
-
+                            
                         }
 
+                        console.log("ActiveStatus End => ", activeStatus)
                     }
                 } catch (err) {
                     // console.log(`Failed by network connection error: ${txHash}`);
@@ -1092,7 +1108,7 @@ module.exports = io => {
         socket.on("start-get-price-data", async (data) => {
             data = JSON.parse(data);
             const { tokenAddress, tradeAmount } = data;
-            console.log(tokenAddress, tradeAmount);
+            console.log("=> tokenAddress : ", tokenAddress," : => tradeAmount : ", tradeAmount);
             let uni_buy, uni_sell, tokenName, tokenDecimal;
 
             try {
@@ -1163,7 +1179,7 @@ module.exports = io => {
             plan.autoGasLimit = gasLimit;
 
             await prepareBot(true);
-
+            io.of("/api/ethers").emit("monitor-message", `Started auto trading`);
             startPlan();
 
         });
@@ -1176,6 +1192,7 @@ module.exports = io => {
 
         socket.on('disconnect', function () {
             console.log("client has disconnected:" + socket.id);
+            io.of("/api/ethers").emit("monitor-message", `Client has disconnected: ${socket.id}`);
         });
 
     });

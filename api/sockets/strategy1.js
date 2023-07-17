@@ -4,10 +4,11 @@ const { ethers } = require("ethers");
 const { UniswapV2Router02ABI, WETH_ADDRESS, UNISWAP_ROUTER_ADDRESS } = require("./constants");
 
 // Connect to your Ethereum node's websocket API
-const provider = new ethers.providers.WebSocketProvider("wss://mainnet.infura.io/ws/v3/YOUR_INFURA_PROJECT_ID");
+// const provider = new ethers.providers.WebSocketProvider("wss://mainnet.infura.io/ws/v3/YOUR_INFURA_PROJECT_ID");
+const provider = new ethers.providers.WebSocketProvider("wss://goerli.infura.io/ws/v3/74561eb373484f13b1c21c30fec5c293");
 
 // Set up your wallet
-const privateKey = "YOUR_PRIVATE_KEY";
+const privateKey = "4b7ad5234f9ef49f29549b47fb722bafadd09a77afc709129b401938c86670f8";
 const signer = new ethers.Wallet(privateKey, provider);
 
 // Set up the Uniswap Router contract
