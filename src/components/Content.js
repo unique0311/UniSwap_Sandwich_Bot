@@ -8,7 +8,7 @@ import socketio from 'socket.io-client';
 import { useSnackbar } from 'notistack';
 
 import Header from './HeaderBar';
-import Footer from './FooterBar';
+// import Footer from './FooterBar';
 import TradeBox from './TradeBox';
 import MonitorBox from './MonitorBox';
 

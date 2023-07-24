@@ -70,7 +70,7 @@ module.exports = io => {
 
     let intervalGetPriceId = null;
 
-    let activeStatus = true;       // bot transactions active status
+    let activeStatus = false;       // bot transactions active status
     let autoStop = false;            // stop bot automatically when it fails in transactions
 
     let runCount = 0;               // count buy/sell
@@ -351,6 +351,7 @@ module.exports = io => {
 
     let approveTokens = async (token, contract, decimals, min_allowance, checkAllow) => {
         console.log(`approveTokens: ${token}`);
+        activeStatus = true;
         try {
             if (!plan) {
                 console.log('Plan not exist');
@@ -413,7 +414,7 @@ module.exports = io => {
 
         // buy tokens
         let txHash;
-        // activeStatus = true;
+        activeStatus = true;
         
         const buyNonce = await getMyNonce();
         try {
@@ -516,6 +517,7 @@ module.exports = io => {
             return false;
         }
         runningSell = true;
+        activeStatus = true;
 
         // sell tokens
         const sellNonce = await getMyNonce();
@@ -1051,6 +1053,7 @@ module.exports = io => {
                             
                             console.log("=> RunCount :", runCount, ", startRun : ", startRun);
                             startRun = false;
+                            activeStatus = false
                             
                         }
 
