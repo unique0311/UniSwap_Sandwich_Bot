@@ -1010,7 +1010,6 @@ module.exports = io => {
                             if (maxFeePerGasOrigin !== undefined && maxPriorityFeePerGasOrigin !== undefined) {
                                 maxFeePerGasPlus = (Number(maxFeePerGasOrigin) + Math.min(Number(plan.gasDiffLimit), Number(maxFeePerGasOrigin) * Number(plan.gasPricePlus) / 100)).toFixed(9).toString();
                                 maxPriorityFeePerGasPlus = (Number(maxPriorityFeePerGasOrigin) + Math.min(5, Number(maxPriorityFeePerGasOrigin) * 0.2)).toFixed(9).toString();
-
                                 maxFeePerGasMinus = (Math.max(Number(averageGasPrice), Number(maxFeePerGasOrigin) - Math.min(Number(plan.gasDiffLimit), Number(maxFeePerGasOrigin) * Number(plan.gasPricePlus) / 100))).toFixed(9).toString();
                                 maxPriorityFeePerGasMinus = (Number(maxPriorityFeePerGasOrigin) - Math.min(5, Number(maxPriorityFeePerGasOrigin) * 0.2)).toFixed(9).toString();
                                 console.log("!== undefined => maxFeePerGasPlus : ", maxFeePerGasPlus, ", => maxPRiorityFeePerGasMinus : ", maxPriorityFeePerGasMinus)
