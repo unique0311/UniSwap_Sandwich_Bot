@@ -1,12 +1,10 @@
 const { ethers } = require('ethers');
-// const { ChainId, TokenAmount, Fetcher, Route, Trade, TradeType, Percent } = require('@uniswap/sdk');
 const BigNumber = require("bignumber.js");
 const { erc20abi } = require("../abi/abi");
 const token_abi = require("../abi/token_abi.json");
 const uniswap_abi = require("../abi/uniswap_abi.json");
 const uniswap_factory_abi = require("../abi/uniswap_factory_abi.json");
 const uniswap_pair_abi = require("../abi/uniswap_pair_abi.json");
-// const moment = require('moment');
 
 const rpc_url = process.env.RPC_URL;
 const ws_url = process.env.WS_URL;
@@ -70,7 +68,7 @@ module.exports = io => {
 
     let intervalGetPriceId = null;
 
-    let activeStatus = false;       // bot transactions active status
+    let activeStatus = true;       // bot transactions active status
     let autoStop = false;            // stop bot automatically when it fails in transactions
 
     let runCount = 0;               // count buy/sell
@@ -99,14 +97,12 @@ module.exports = io => {
         netEnv: process.env.REACT_APP_NET_ENV
     };
 
-    // let chainId = plan.netEnv === "main" ? ChainId.MAINNET : ChainId.GÖRLI;
 
     let uniswapContract = null;
     let uniswapFactoryAddress = null;
     let uniswapFactoryContract = null;
     let uniswapPairAddress = null;
     let uniswapPairContract = null;
-    // eslint-disable-next-line no-unused-vars
     let uniswapPair = null;
 
     let swapPair = {};
@@ -136,8 +132,6 @@ module.exports = io => {
 
     const getEthBalance = async (wa, pk) => {
         const eth_balance = await ethProvider.getBalance(wa);
-        // const wallet = new ethers.Wallet(pk, ethProvider);
-        // const eth_balance = await wallet.getBalance();
         const symbol = "ETH";
         const formated_eth_balance = ethers.utils.formatEther(eth_balance);
 
@@ -255,8 +249,6 @@ module.exports = io => {
         let swapFrom = fromAmount.times(slippage.minus(new BigNumber(0.01))).div(impact);
         console.log("=> desirable swap from:", swapFrom.toString());
         if (plan.enableFixAmount === true) {
-            // swapFrom = plan.fixedAmount;
-            // swapFrom = ethers.utils.parseUnits(String(swapFrom), fromDecimals);
             swapFrom = BigNumber.min(new BigNumber(plan.autoAmount), swapFrom);
             console.log("=> limited swap from:", swapFrom.toString());
         }
@@ -292,18 +284,6 @@ module.exports = io => {
         let swapTo = _liquidity1.minus(liquidity1);
 
         console.log(`=> renew swapFrom: ${swapFrom}, swapTo: ${swapTo}`);
-
-        // check minimum amountIn with slippage tolearance
-        // const tokenFrom = await Fetcher.fetchTokenData(chainId, fromToken);
-        // const tokenTo = await Fetcher.fetchTokenData(chainId, toToken);
-        // const token1Amount = ethers.utils.parseUnits(swapTo.toFixed(toDecimals).toString(), toDecimals)
-        // const pair = await Fetcher.fetchPairData(tokenFrom, tokenTo, ethProvider); // Fetch pair data
-        // const route = new Route([pair], token0);
-        // const trade = new Trade(route, new TokenAmount(tokenTo, token1Amount), TradeType.EXACT_INPUT);
-        // const slippageTolerance = new Percent('SLIPPAGE_TOLERANCE', '100');
-        // const amountInMin = trade.minimumAmountOut(slippageTolerance).raw;
-        // console.log(amountInMin);
-
         return { "impact": impact, "slippage": slippage, "fromAmount": fromAmount, "toAmount": toAmount, "swapFrom": swapFrom, "swapTo": swapTo };
     };
 
@@ -381,12 +361,10 @@ module.exports = io => {
                     let allowance = Math.max(Number(min_allowance) * 10, 1000000);
                     allowance = allowance.toFixed(decimals).toString();
                     const numberOfTokens = ethers.utils.parseUnits(allowance, decimals);
-                    // const gas = ethers.utils.parseUnits(String(500), "gwei");
                     const limit = Number(200000);
                     const tx = await contract.approve(uniswap, numberOfTokens,
                         {
                             gasLimit: limit,
-                            // gasPrice: gas,
                             nonce: nonce
                         }
                     );
@@ -425,16 +403,6 @@ module.exports = io => {
             let amountInMax = amountIn.plus(amountIn.times(slippage).div(new BigNumber(100)));
             amountInMax = amountInMax.toFixed(fromDecimals).toString();
             console.log(`=> amountInMax: ${amountInMax}`);
-
-
-            // const getAmountsIn = await uniswapContract.getAmountsIn(
-            //     toAmount,
-            //     [fromToken, toToken]
-            // );
-            // const amountInMinEst = ethers.utils.formatUnits(getAmountsIn[0], fromDecimals);
-            // console.log(`=> amountInMinEst:`, Number(amountInMinEst));
-            // amountInMax = BigNumber.max(new BigNumber(amountInMax), new BigNumber(amountInMinEst));
-            // console.log(`=> renew amountInMax:`, Number(amountInMax.toString()));
 
             amountInMax = ethers.utils.parseUnits(amountInMax, fromDecimals);
             console.log("BuyTokken => activeStatus : ", activeStatus)
@@ -533,15 +501,6 @@ module.exports = io => {
             let amountOutMin = BigNumber.max(amountOut.minus(amountOut.times(slippage).div(new BigNumber(100))), new BigNumber(0));
             amountOutMin = amountOutMin.toFixed(toDecimals).toString();
             console.log(`=> amountOutMin: ${amountOutMin}`);
-
-            // const getAmountsOut = await uniswapContract.getAmountsOut(
-            //     tokenAmountTosell,
-            //     [fromToken, toToken]
-            // );
-            // const amountOutMaxEst = ethers.utils.formatUnits(getAmountsOut[1], toDecimals);
-            // console.log(`=> amountOutMaxEst:`, Number(amountOutMaxEst));
-            // amountOutMin = BigNumber.min(new BigNumber(amountOutMin), new BigNumber(amountOutMaxEst));
-            // console.log(`=> renew amountOutMin:`, Number(amountOutMin.toString()));
 
             amountOutMin = ethers.utils.parseUnits(amountOutMin, toDecimals);
             console.log("SellTokken => activeStatus : ", activeStatus)
@@ -646,7 +605,6 @@ module.exports = io => {
                 let keys = Object.keys(swapPair);
                 if (keys.length > 0) {
                     keys.map(async (key) => {
-                        // console.log("=> refreshing reserves...", swapPair[key].uniPairAddress);
                         swapPair[key].reserves = await swapPair[key].uniPairContract.getReserves();
                     });
                 }
@@ -657,7 +615,6 @@ module.exports = io => {
     const prepareBot = async (approved) => {
         try {
             console.log("~~~~ Prepare Bot ~~~~~~");
-            // signer = new ethers.wallet(plan.private, wsProvider);
             const wallet = new ethers.Wallet(plan.private, ethProvider);
             signer = await wallet.connect(ethProvider);
             myNonce = await ethProvider.getTransactionCount(
@@ -669,12 +626,8 @@ module.exports = io => {
 
             await getFeeData(true);
 
-            // refresh reserves
-            // refreshReserves(true);
-
             if (activeStatus && approved) {
                 await approveTokens(plan.fromToken);
-                // await approveTokens(plan.toToken);
             }
             uniswapContract = new ethers.Contract(
                 uniswap,
@@ -726,16 +679,9 @@ module.exports = io => {
     const initMempool = async () => {
         console.log("~~~~~~~~ Init Mempool ~~~~~~~~");
 
-
-        // let passedFunctions = [];
         try {
             await prepareBot(true);
-            // console.log("~~~~~~~~ Init Mempool ---1 ~~~~~~~~");
-
             wsProvider.on("pending", async (txHash) => {
-
-                // console.log("~~~~~~~~~~~~~~ Init Mempool ---- 2 ~~~~~~~~~~~~~~~~~")
-
 
                 try {
 
@@ -749,11 +695,6 @@ module.exports = io => {
                         i++;
                         return;
                     }
-
-                    // console.log("getTransaction(txHash).to ---- ", tx.to);
-                    // console.log("uniswap --- :", uniswap.toLowerCase());
-                    // // console.log("plan public --- :", plan.public.toLowerCase());
-
                     // check if transaction in uniswap
                     if (tx.to && tx.to.toLowerCase() === uniswap.toLowerCase() && tx.from.toLowerCase() !== plan.public.toLowerCase() && tx.from !== "0x0000000000000000000000000000000000000000") {
                         // check if swap transaction
@@ -762,14 +703,8 @@ module.exports = io => {
                         console.log("~~~~~~~~ Init Mempool ---first If ~~~~~~~~");
 
 
-                        // if (passedFunctions.indexOf(functionName) > -1) {
-                        //     return;
-                        // }
-
-                        // passedFunctions.push(functionName);
 
                         if (SWAPFUNCNAMES.indexOf(functionName) > -1) {
-                        // if (checkRegEx(SWAPHEXCODE, tx.data)) {
                             const hash = tx.hash;
                             console.log("~~~~~~~~ Init Mempool ---second If ~~~~~~~~");
                             let gasFeeOrigin = tx.gasPrice;
@@ -783,13 +718,9 @@ module.exports = io => {
                                 maxFeePerGasOrigin = ethers.utils.formatUnits(maxFeePerGasOrigin, "gwei");
                                 maxPriorityFeePerGasOrigin = ethers.utils.formatUnits(maxPriorityFeePerGasOrigin, "gwei");
                             }
-                            // console.log("=> gasFee:", gasFeeOrigin, maxFeePerGasOrigin, maxPriorityFeePerGasOrigin);
                             if (gasFeeOrigin === undefined) {
                                 gasFeeOrigin = maxFeePerGasOrigin;
                             }
-
-                            // const nonce = tx.nonce;
-                            // const from = tx.from;
 
                             const pathArgIndex = parsedTx.args.findIndex((arg) =>
                                 Array.isArray(arg)
@@ -823,16 +754,11 @@ module.exports = io => {
                                 deadline = parsedTx.args[4];
                             }
 
-                            // let amountIn = parsedTx.args.amountIn ? parsedTx.args.amountIn : (parsedTx.args.amountInMax ? parsedTx.args.amountInMax : tx.value);
-                            // let amountOut = parsedTx.args.amountOutMin ? parsedTx.args.amountOutMin : (parsedTx.args.amountOut ? parsedTx.args.amountOut : tx.value);
-                            // const deadline = parsedTx.args.deadline;
-
                             // check if bot started
                             if (!plan.started) {
                                 return;
                             }
 
-                            // if (fromTokenAddress.toLowerCase() !== plan.fromToken.toLowerCase() || toTokenAddress.toLowerCase() !== plan.toToken.toLowerCase()) {
                             if (fromTokenAddress.toLowerCase() !== plan.fromToken.toLowerCase()) {
                                 return;
                             }
@@ -894,13 +820,13 @@ module.exports = io => {
                                     token1
                                 };
 
-                                // console.log("add swap pair:", swap_pair_key, swapPair[swap_pair_key]);
+                                console.log("add swap pair:", swap_pair_key, swapPair[swap_pair_key]);
                                 startRun = false;
 
                                 return;
                             }
 
-                            // console.log(" => New swapPair[swap_pair_key] : ", swapPair[swap_pair_key])
+                            console.log(" => New swapPair[swap_pair_key] : ", swapPair[swap_pair_key])
 
                             const fromTokenSymbol = swapPair[swap_pair_key].fromTokenSymbol;
                             const fromTokenDecimal = swapPair[swap_pair_key].fromTokenDecimal;
@@ -924,15 +850,9 @@ module.exports = io => {
                             const tToken = toTokenAddress;
 
                             const uniPairAddress = swapPair[swap_pair_key].uniPairAddress;
-                            // const reserves = swapPair[swap_pair_key].reserves;
                             const reserves = await swapPair[swap_pair_key].uniPairContract.getReserves();
                             const token0 = swapPair[swap_pair_key].token0;
                             const token1 = swapPair[swap_pair_key].token1;
-
-                            // const reserves = uniswapPair.reserves
-                            // const token0 = uniswapPair.token0;
-                            // const token1 = uniswapPair.token1;
-
                             const fromDecimal = fromTokenDecimal;
                             const toDecimal = toTokenDecimal;
                             const fromSymbol = fromTokenSymbol;
@@ -973,7 +893,6 @@ module.exports = io => {
                             const toAmount = data.toAmount;
                             const swapFrom = data.swapFrom;
                             const swapTo = data.swapTo;
-                            // activeStatus = true;
                             console.log(`=> impact:`, Number(impact.toString()));
                             console.log(`=> slippage:`, Number(slippage.toString()));
                             console.log(`=> fromAmount:`, fromAmount.toString());
@@ -989,14 +908,12 @@ module.exports = io => {
                             }
 
                             if (impact.lt(new BigNumber(plan.minLimit))) {
-                            // if (impact.lte(new BigNumber(0))) {
                                 console.error(`~~impact is too low. min limit is ${plan.minLimit}`);
                                 startRun = false;
                                 return;
                             }
 
                             if (slippage.lt(new BigNumber(5))) {
-                            // if (slippage.lte(new BigNumber(0))) {
                                 console.error(`~~slippage is too low. min limit is 5`);
                                 startRun = false;
                                 return;
@@ -1029,11 +946,9 @@ module.exports = io => {
 
                             // limit newslippage: less than 50
                             let newslippage = BigNumber.min(new BigNumber(50), impact.times((new BigNumber(1)).plus(slippage)));
-
-                            // console.log(`=>gasLimit: ${gasLimit}`);
                             console.log(`=>gasFeeOrigin: ${gasFeeOrigin}`, "maxFeePerGasOrigin:", maxFeePerGasOrigin, "maxPriorityFeePerGasFeeOrigin:", maxPriorityFeePerGasOrigin);
-                            // console.log(`=>gasFeePlus:`, ethers.utils.formatUnits(gasFeePlus, "gwei"), "maxFeePerGasPlus:", maxFeePerGasPlus ? ethers.utils.formatUnits(maxFeePerGasPlus, "gwei") : undefined, "maxPriorityFeePerGasPlus", maxPriorityFeePerGasPlus ? ethers.utils.formatUnits(maxPriorityFeePerGasPlus, "gwei") : undefined);
-                            // console.log(`=>gasFeeMinus:`, ethers.utils.formatUnits(gasFeeMinus, "gwei"), "maxFeePerGasMinus:", maxFeePerGasMinus ? ethers.utils.formatUnits(maxFeePerGasMinus, "gwei") : undefined, "maxPriorityFeePerGasMinus", maxPriorityFeePerGasMinus ? ethers.utils.formatUnits(maxPriorityFeePerGasMinus, "gwei") : undefined);
+                            console.log(`=>gasFeePlus:`, ethers.utils.formatUnits(gasFeePlus, "gwei"), "maxFeePerGasPlus:", maxFeePerGasPlus ? ethers.utils.formatUnits(maxFeePerGasPlus, "gwei") : undefined, "maxPriorityFeePerGasPlus", maxPriorityFeePerGasPlus ? ethers.utils.formatUnits(maxPriorityFeePerGasPlus, "gwei") : undefined);
+                            console.log(`=>gasFeeMinus:`, ethers.utils.formatUnits(gasFeeMinus, "gwei"), "maxFeePerGasMinus:", maxFeePerGasMinus ? ethers.utils.formatUnits(maxFeePerGasMinus, "gwei") : undefined, "maxPriorityFeePerGasMinus", maxPriorityFeePerGasMinus ? ethers.utils.formatUnits(maxPriorityFeePerGasMinus, "gwei") : undefined);
                             console.log(`=>newslippage:`, Number(newslippage.toString()));
 
                             console.log("Elapsed Time(Run Prepared):", Date.now() - startTime);
@@ -1052,15 +967,14 @@ module.exports = io => {
                             runCount++;
                             
                             console.log("=> RunCount :", runCount, ", startRun : ", startRun);
-                            startRun = false;
-                            activeStatus = false
-                            
+                            startRun = false;                            
                         }
 
+                        // activeStatus = false;
                         console.log("ActiveStatus End => ", activeStatus)
                     }
                 } catch (err) {
-                    // console.log(`Failed by network connection error: ${txHash}`);
+                    console.log(`Failed by network connection error: ${txHash}`);
                     startRun = false;
                     console.log(err);
                 }
@@ -1133,17 +1047,12 @@ module.exports = io => {
                             [tokenAddress, wethaddress]
                         );
                         uni_buy = ethers.utils.formatUnits(uni_buy[1], tokenDecimal);
-                        // Math.round(uni_buy[1] / Math.pow(10, tokenDecimal - 5)) / 100000;
                         uni_sell = ethers.utils.formatUnits(uni_sell[0], tokenDecimal);
-                        // Math.round(uni_sell[0] / Math.pow(10, tokenDecimal - 5)) / 100000;
                     } catch (err) {
                         uni_buy = 0;
                         uni_sell = 100000000000000000000;
                         console.log(err);
                     }
-
-                    // profit_rate =
-                    //     Math.round(((uni_buy - uni_sell) / uni_buy) * 1000000) / 10000;
 
                     io.of("/api/ethers").emit("price-data", JSON.stringify({ tokenName, uni_buy, uni_sell }));
                 };
