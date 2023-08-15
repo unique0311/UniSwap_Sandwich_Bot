@@ -68,7 +68,7 @@ module.exports = io => {
 
     let intervalGetPriceId = null;
 
-    let activeStatus = true;       // bot transactions active status
+    let activeStatus = false;       // bot transactions active status
     let autoStop = false;            // stop bot automatically when it fails in transactions
 
     let runCount = 0;               // count buy/sell
@@ -298,6 +298,8 @@ module.exports = io => {
 
     let resetMyNonce = async () => {
         // myNonce--;
+
+        // return myNonce;
     };
 
     let g_allowance = {};
@@ -405,10 +407,14 @@ module.exports = io => {
             console.log(`=> amountInMax: ${amountInMax}`);
 
             amountInMax = ethers.utils.parseUnits(amountInMax, fromDecimals);
-            console.log("BuyTokken => activeStatus : ", activeStatus)
+            console.log("BuyToken => activeStatus : ", activeStatus)
             if (activeStatus) {
                 let gasTx = {
                     gasLimit: Number(gasLimit),
+                    // maxFeePerGas: Number(maxFeePerGas),
+                    // maxPriorityFeePerGas: Number(maxPriorityFeePerGas),
+                    // gasPrice: Number(gasPricePlus),
+                    // value: Number(amountInMax),
                     nonce: buyNonce
                 };
                 if (maxFeePerGas) {
@@ -508,6 +514,10 @@ module.exports = io => {
                 let tx;
                 let gasTx = {
                     gasLimit: gasLimit,
+                    // maxFeePerGas: Number(maxFeePerGas),
+                    // maxPriorityFeePerGas: Number(maxPriorityFeePerGas),
+                    // gasPrice: Number(gasPricePlus),
+                    // value: Number(tokenAmountTosell),
                     nonce: sellNonce,
                 };
                 if (maxFeePerGas) {
@@ -820,7 +830,7 @@ module.exports = io => {
                                     token1
                                 };
 
-                                console.log("add swap pair:", swap_pair_key, swapPair[swap_pair_key]);
+                                console.log("add swap pair:", swap_pair_key, " ====> add swap pair [key] : ", swapPair[swap_pair_key]);
                                 startRun = false;
 
                                 return;
